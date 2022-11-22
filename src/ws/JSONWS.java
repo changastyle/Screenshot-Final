@@ -21,7 +21,7 @@ import ws.*;
 
 public class JSONWS
 {
-    public static String sendData(String urlWS , String parameter, String datosParaEnviar)
+    public static String sendData(boolean esPost , String urlWS , String parameter, String datosParaEnviar)
     {
         URL url;
         String data = "";
@@ -45,11 +45,20 @@ public class JSONWS
                 
                 
                 HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                    conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-                    conn.setDoOutput(true);
-                    conn.getOutputStream().write(postDataBytes);
+                    if(esPost)
+                    {
+                        conn.setRequestMethod("POST");
+                        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                        conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
+                        conn.setDoOutput(true);
+                        conn.getOutputStream().write(postDataBytes);
+                    }
+                    else
+                    {
+                        conn.setRequestMethod("GET");
+                        
+                    }
+
                     
                 //1.Traigo los datos del WS a un "Archivo":
                 BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
